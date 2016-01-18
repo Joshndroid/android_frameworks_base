@@ -109,8 +109,6 @@ import com.android.internal.util.cm.SpamFilter.SpamContract.NotificationTable;
 import com.android.internal.util.cm.SpamFilter.SpamContract.PackageTable;
 import com.android.internal.util.NotificationColorUtil;
 import com.android.internal.util.omni.OmniSwitchConstants;
-import com.android.internal.util.temasek.ColorHelper;
-import com.android.internal.util.temasek.NotificationColorHelper;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.systemui.DejankUtils;
@@ -308,6 +306,10 @@ public abstract class BaseStatusBar extends SystemUI implements
             updatePieControls(!pieEnabled);
         }
     };
+
+    // last theme that was applied in order to detect theme change (as opposed
+    // to some other configuration change).
+    protected ThemeConfig mCurrentTheme;
 
     @Override  // NotificationData.Environment
     public boolean isDeviceProvisioned() {
@@ -1570,9 +1572,8 @@ public abstract class BaseStatusBar extends SystemUI implements
         View contentViewLocal = null;
         View bigContentViewLocal = null;
         View headsUpContentViewLocal = null;
-        final ThemeConfig themeConfig = mContext.getResources().getConfiguration().themeConfig;
-        String themePackageName = themeConfig != null ?
-                themeConfig.getOverlayPkgNameForApp(mContext.getPackageName()) : null;
+        String themePackageName = mCurrentTheme != null ?
+                mCurrentTheme.getOverlayForStatusBar() : null;
         try {
             contentViewLocal = contentView.apply(
                     sbn.getPackageContext(mContext),
